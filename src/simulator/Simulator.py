@@ -123,7 +123,7 @@ class Simulator:
                 mapping[device_id] = data # data is tuple(training_subset, validation_subset)
 
         if self.algorithm == 'ifca':
-            environment_test = partition_to_subregions(self.test_data, self.test_data, 'CIFAR100', 'Hard', self.areas, self.seed)
+            environment_test = partition_to_subregions(self.test_data, self.test_data, self.dataset_name, self.partitioning, self.areas, self.seed)
             region_to_val_data = {}
             region_to_test_data = {}
             for region_id in range(self.areas):
@@ -133,11 +133,6 @@ class Simulator:
                 d_test = mapping_devices_data_test[0][0]
                 region_to_val_data[region_id] = Subset(d_val.dataset, d_val.indices)
                 region_to_test_data[region_id] = Subset(d_test.dataset, d_test.indices)
-                # print(f'---------------- region {region_id} ----------------')
-                # labels = set([d_val.dataset[idx][1] for idx in d_val.indices])
-                # print(f'Validation labels = {labels}')
-                # labels = set([d_test.dataset[idx][1] for idx in d_test.indices])
-                # print(f'Test labels = {labels}')
             self.ifca_val_mapping = region_to_val_data
             self.ifca_test_mapping = region_to_test_data
 
