@@ -3,17 +3,15 @@ import random
 import numpy as np
 import pandas as pd
 import utils.FedUtils as utils
-from collections import Counter
 from client.IFCAClient import IFCAClient
 from server.IFCAServer import IFCAServer
-from torchvision import datasets, transforms
 from client.FedAvgClient import FedAvgClient
 from client.FedProxClient import FedProxClient
 from server.FedAvgServer import FedAvgServer
 from client.ScaffoldClient import ScaffoldClient
 from server.ScaffoldServer import ScaffoldServer
-from torch.utils.data import Subset, random_split
-from ProFed.partitioner import Environment, Region, download_dataset, split_train_validation, partition_to_subregions
+from torch.utils.data import Subset
+from ProFed.partitioner import download_dataset, split_train_validation, partition_to_subregions
 
 class Simulator:
 
