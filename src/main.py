@@ -27,6 +27,7 @@ if __name__ == '__main__':
     algorithms      = ['fedavg', 'fedprox', 'scaffold', 'ifca'] # TODO - fix fedproxy in the other files
     areas           = [3, 5, 9]
     partitionings   = ['Hard'] # TODO - add all
+    sparsifications = [0.1] # TODO - add all
     clients         = 50
     batch_size      = 32
     local_epochs    = 2
@@ -43,17 +44,18 @@ if __name__ == '__main__':
         df = pd.read_csv(csv_file)
     except FileNotFoundError:
         pass
-    
+
     for algorithm in algorithms:
-        for dataset in datasets:
-            for partitioning in partitionings:
-                for seed in range(max_seed):
+        for seed in range(max_seed):
+            for dataset in datasets:
+                for partitioning in partitionings:
                     for area in areas:
-                        simulator = Simulator(algorithm, partitioning, area, dataset, clients, batch_size, local_epochs, data_dir, seed)
-                        simulator.seed_everything(seed)
-                        simulator.start(global_rounds)
-                        experiment_name = f'seed-{seed}_regions-{area}_algorithm_{algorithm}'
-                        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        new_line = {'timestamp': timestamp, 'experiment': experiment_name}
-                        df = pd.concat([df, pd.DataFrame([new_line])], ignore_index=True)
-                        df.to_csv(csv_file, index=False)
+                        for sparsification in sparsifications:
+                            simulator = Simulator(algorithm, partitioning, area, dataset, clients, batch_size, local_epochs, data_dir, seed, sparsification)
+                            simulator.seed_everything(seed)
+                            simulator.start(global_rounds)
+                            experiment_name = f'seed-{seed}_regions-{area}_algorithm_{algorithm}'
+                            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            new_line = {'timestamp': timestamp, 'experiment': experiment_name}
+                            df = pd.concat([df, pd.DataFrame([new_line])], ignore_index=True)
+                            df.to_csv(csv_file, index=False)
