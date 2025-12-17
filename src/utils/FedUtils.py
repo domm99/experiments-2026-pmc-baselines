@@ -95,5 +95,5 @@ def check_sparsity(state_dict, verbose=False):
     if total_params == 0:
         return 0.0
 
-    global_sparsity = (total_zeros / total_params) * 100
+    global_sparsity = (total_zeros / total_params)
     return global_sparsity
