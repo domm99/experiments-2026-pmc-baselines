@@ -32,19 +32,20 @@ def initialize_control_state(experiment, device):
     return control_state.state_dict()
 
 def test_model(model, dataset, batch_size, device):
-    criterion = nn.NLLLoss()
+    criterion = nn.CrossEntropyLoss()
     model.eval()
     loss, total, correct = 0.0, 0.0, 0.0
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-    for batch_index, (images, labels) in enumerate(data_loader):
-        images, labels = images.to(device), labels.to(device)
-        outputs = model(images)
-        batch_loss = criterion(outputs, labels)
-        loss += batch_loss.item()
-        _, pred_labels = torch.max(outputs, 1)
-        pred_labels = pred_labels.view(-1)
-        correct += torch.sum(torch.eq(pred_labels, labels)).item()
-        total += len(labels)
+    with torch.no_grad():
+        for batch_index, (images, labels) in enumerate(data_loader):
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            batch_loss = criterion(outputs, labels)
+            loss += batch_loss.item()
+            _, pred_labels = torch.max(outputs, 1)
+            pred_labels = pred_labels.view(-1)
+            correct += torch.sum(torch.eq(pred_labels, labels)).item()
+            total += len(labels)
     accuracy = correct / total
     return loss, accuracy
 
