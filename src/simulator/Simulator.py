@@ -67,11 +67,11 @@ class Simulator:
 
     def initialize_server(self):
         if self.algorithm == 'fedavg' or self.algorithm == 'fedprox':
-            return FedAvgServer(self.dataset_name)
+            return FedAvgServer(self.dataset_name, self.sparsification_level)
         elif self.algorithm == 'scaffold':
-            return ScaffoldServer(self.dataset_name)
+            return ScaffoldServer(self.dataset_name, self.sparsification_level)
         elif self.algorithm == 'ifca':
-            return IFCAServer(self.dataset_name, self.areas)
+            return IFCAServer(self.dataset_name, self.areas, self.sparsification_level)
         else:
             raise Exception(f'Algorithm {self.algorithm} not supported! Please check :)')
 
