@@ -6,13 +6,14 @@ from utils.FedUtils import initialize_control_state, initialize_model
 
 class ScaffoldClient:
 
-    def __init__(self, mid, dataset_name, dataset, batch_size, epochs):
+    def __init__(self, mid, dataset_name, dataset, batch_size, epochs, sparsification_level):
         self.mid = mid
         self.lr = 0.001
         self.epochs = epochs
         self.weight_decay=1e-4
         self.training_set = dataset[0]
         self.batch_size = batch_size
+        self.sparsification_level = sparsification_level
         self._model = initialize_model(dataset_name)
         # self.global_model = initialize_model(dataset_name)
         self.global_model = self._model

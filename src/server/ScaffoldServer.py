@@ -2,12 +2,13 @@ from utils.FedUtils import *
 
 class ScaffoldServer:
 
-    def __init__(self, dataset):
+    def __init__(self, dataset, sparsification_level):
         self.dataset = dataset
         self.clients_data = {}
         self.old_client_control_state = {}
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # self.device = torch.device("cpu")
+        self.sparsification_level = sparsification_level
         self._model = initialize_model(dataset).to(self.device)
         self._control_state = initialize_control_state(dataset, self.device)
 

@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, random_split
 
 class FedAvgClient:
 
-    def __init__(self, mid, dataset_name, dataset, batch_size, epochs):
+    def __init__(self, mid, dataset_name, dataset, batch_size, epochs, sparsification_level):
         self.mid = mid
         self.lr = 0.001
         self.epochs = epochs
@@ -15,6 +15,7 @@ class FedAvgClient:
         self.batch_size = batch_size
         self.training_set = dataset[0]
         self.dataset_name = dataset_name
+        self.sparsification_level = sparsification_level
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._model = initialize_model(dataset_name).to(self.device)
 

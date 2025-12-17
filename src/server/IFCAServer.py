@@ -3,10 +3,11 @@ from utils.FedUtils import *
 
 class IFCAServer:
 
-    def __init__(self, dataset_name, number_of_clusters):
+    def __init__(self, dataset_name, number_of_clusters, sparsification_level):
         self.clients_data = {}
         self.dataset_name = dataset_name
         self.number_of_clusters = number_of_clusters
+        self.sparsification_level = sparsification_level
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self._models = [initialize_model(dataset_name).to(self.device) for _ in range(self.number_of_clusters)]
 

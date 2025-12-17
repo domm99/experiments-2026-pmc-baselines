@@ -7,7 +7,7 @@ from utils.FedUtils import initialize_model, test_model
 
 class IFCAClient:
 
-    def __init__(self, mid, dataset_name, dataset, batch_size, epochs):
+    def __init__(self, mid, dataset_name, dataset, batch_size, epochs, sparsification_level):
         self.mid = mid
         self.lr = 0.001
         self.epochs = epochs
@@ -19,6 +19,7 @@ class IFCAClient:
         self.current_cluster_id = 0
         self.batch_size = batch_size
         self.dataset_name = dataset_name
+        self.sparsification_level = sparsification_level
         self._model = initialize_model(dataset_name)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

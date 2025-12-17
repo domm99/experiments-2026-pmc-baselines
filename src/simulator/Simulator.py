@@ -17,7 +17,7 @@ from ProFed.partitioner import Environment, Region, download_dataset, split_trai
 
 class Simulator:
 
-    def __init__(self, algorithm, partitioning, areas, dataset_name, n_clients, batch_size, local_epochs, data_folder, seed):
+    def __init__(self, algorithm, partitioning, areas, dataset_name, n_clients, batch_size, local_epochs, data_folder, seed, sparsification):
         self.seed = seed
         self.batch_size = batch_size
         self.local_epochs = local_epochs
@@ -26,6 +26,7 @@ class Simulator:
         self.training_data, self.validation_data, self.test_data = self.initialize_data()
         self.partitioning = partitioning
         self.areas = areas
+        self.sparsification_level = sparsification
         self.n_clients = n_clients
         self.export_path = f'{data_folder}/seed-{seed}_algorithm-{self.algorithm}_dataset-{dataset_name}_partitioning-{self.partitioning}_areas-{self.areas}_clients-{self.n_clients}'
         self.simulation_data = pd.DataFrame(columns=['Round','TrainingLoss', 'ValidationLoss', 'ValidationAccuracy'])
@@ -57,13 +58,13 @@ class Simulator:
     def initialize_clients(self):
         client_data_mapping = self.map_client_to_data()
         if self.algorithm == 'fedavg':
-            return [FedAvgClient(index, self.dataset_name, client_data_mapping[index], self.batch_size, self.local_epochs) for index in range(self.n_clients)]
+            return [FedAvgClient(index, self.dataset_name, client_data_mapping[index], self.batch_size, self.local_epochs, self.sparsification_level) for index in range(self.n_clients)]
         elif self.algorithm == 'scaffold':
-            return [ScaffoldClient(index, self.dataset_name, client_data_mapping[index], self.batch_size, self.local_epochs) for index in range(self.n_clients)]
+            return [ScaffoldClient(index, self.dataset_name, client_data_mapping[index], self.batch_size, self.local_epochs, self.sparsification_level) for index in range(self.n_clients)]
         elif self.algorithm == 'fedproxy':
-            return [FedProxyClient(index, self.dataset_name, client_data_mapping[index], self.batch_size, self.local_epochs) for index in range(self.n_clients)]
+            return [FedProxyClient(index, self.dataset_name, client_data_mapping[index], self.batch_size, self.local_epochs, self.sparsification_level) for index in range(self.n_clients)]
         elif self.algorithm == 'ifca':
-            return [IFCAClient(index, self.dataset_name, client_data_mapping[index], self.batch_size, self.local_epochs) for index in range(self.n_clients)]
+            return [IFCAClient(index, self.dataset_name, client_data_mapping[index], self.batch_size, self.local_epochs, self.sparsification_level) for index in range(self.n_clients)]
         else:
             raise Exception(f'Algorithm {self.algorithm} not supported! Please check :)')
 
