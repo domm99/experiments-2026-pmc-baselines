@@ -1,39 +1,23 @@
-import os
-import sys
-import yaml
-import time
 import pandas as pd
 from pathlib import Path
-from hashlib import sha512
-from itertools import product
 from datetime import datetime
 from simulator.Simulator import Simulator
-
-def get_hyperparameters():
-    """
-    Fetches the hyperparameters from the docker compose config file
-    :return: the experiment name and the hyperparameters (as a dictionary name -> values)
-    """
-    hyperparams = os.environ['LEARNING_HYPERPARAMETERS']
-    hyperparams = yaml.safe_load(hyperparams)
-    experiment_name, hyperparams = list(hyperparams.items())[0]
-    return experiment_name.lower(), hyperparams
 
 if __name__ == '__main__':
 
     total_experiments = 0
 
     datasets        = ['EMNIST'] # TODO - add all datasets
-    algorithms      = ['fedavg', 'fedprox', 'scaffold', 'ifca'] # TODO - fix fedproxy in the other files
+    algorithms      = ['fedavg', 'fedprox', 'ifca'] # TODO - add scaffold
     areas           = [3, 5, 9]
-    partitionings   = ['Hard'] # TODO - add all
-    sparsifications = [0.1] # TODO - add all
+    partitionings   = ['Hard', 'Dirichlet']
+    sparsifications = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99] # TODO - add all
     clients         = 50
     batch_size      = 32
     local_epochs    = 2
     global_rounds   = 60
     data_dir        = 'data'
-    max_seed        = 1 # TODO - add more seeds
+    max_seed        = 5
 
     data_output_directory = Path(data_dir)
     data_output_directory.mkdir(parents=True, exist_ok=True)
