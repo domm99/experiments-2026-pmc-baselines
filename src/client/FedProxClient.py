@@ -4,7 +4,7 @@ from torch import nn
 from utils.FedUtils import initialize_model
 from torch.utils.data import DataLoader, random_split
 
-class FedProxyClient:
+class FedProxClient:
 
     def __init__(self, mid, dataset_name, dataset, batch_size, epochs, sparsification_level):
         self.mu = 0.1
