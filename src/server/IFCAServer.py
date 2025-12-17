@@ -10,6 +10,7 @@ class IFCAServer:
         self.sparsification_level = sparsification_level
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self._models = [initialize_model(dataset_name).to(self.device) for _ in range(self.number_of_clusters)]
+        self._models = [prune_model(m.state_dict(), self.dataset_name, self.sparsification_level) for m in self._models]
 
     def aggregate(self):
         # Find models for each cluster

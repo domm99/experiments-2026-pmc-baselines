@@ -9,6 +9,7 @@ class FedAvgServer:
         self.sparsification_level = sparsification_level
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._model = initialize_model(dataset).to(self.device)
+        self._model = prune_model(self._model.state_dict(), self.dataset, self.sparsification_level)
 
     def aggregate(self):
         """
@@ -24,7 +25,7 @@ class FedAvgServer:
             for i in range(0, len(models)):
                 w_avg[key] += models[i][key]
             w_avg[key] = torch.div(w_avg[key], len(models))
-        self.model.load_state_dict(w_avg)
+        self._model.load_state_dict(w_avg)
 
     def receive_client_update(self, client_data):
         self.clients_data = client_data

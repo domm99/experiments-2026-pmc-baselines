@@ -1,8 +1,6 @@
 import copy
-import torch
-from torch import nn
-from utils.FedUtils import initialize_model
-from torch.utils.data import DataLoader, random_split
+from utils.FedUtils import *
+from torch.utils.data import DataLoader
 
 
 class FedAvgClient:
@@ -18,6 +16,7 @@ class FedAvgClient:
         self.sparsification_level = sparsification_level
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._model = initialize_model(dataset_name).to(self.device)
+        self._model = prune_model(self._model.state_dict(), self.dataset_name, self.sparsification_level)
 
     def train(self):
         train_loader = DataLoader(self.training_set, batch_size=self.batch_size, shuffle=True)
@@ -43,6 +42,7 @@ class FedAvgClient:
 
     def notify_updates(self, global_model):
         self._model.load_state_dict(copy.deepcopy(global_model.state_dict()))
+        print(f'FedAvgClient {self.mid} Initialization, sparsity --> {check_sparsity(self._model.state_dict())}')
 
     @property
     def model(self):

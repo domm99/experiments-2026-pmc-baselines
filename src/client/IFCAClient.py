@@ -1,8 +1,8 @@
 import copy
 import torch
 from torch import nn
-from torch.utils.data import DataLoader, random_split
-from utils.FedUtils import initialize_model, test_model
+from torch.utils.data import DataLoader
+from utils.FedUtils import *
 
 
 class IFCAClient:
@@ -21,6 +21,7 @@ class IFCAClient:
         self.dataset_name = dataset_name
         self.sparsification_level = sparsification_level
         self._model = initialize_model(dataset_name)
+        self._model = prune_model(self._model.state_dict(), self.dataset_name, self.sparsification_level)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def train(self):

@@ -1,8 +1,8 @@
 import copy
 import torch
 from torch import nn
-from utils.FedUtils import initialize_model
-from torch.utils.data import DataLoader, random_split
+from utils.FedUtils import *
+from torch.utils.data import DataLoader
 
 class FedProxClient:
 
@@ -18,6 +18,7 @@ class FedProxClient:
         self.sparsification_level = sparsification_level
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._model = initialize_model(dataset_name).to(self.device)
+        self._model = prune_model(self._model.state_dict(), self.dataset_name, self.sparsification_level)
 
     def train(self):
         # labels = [self.training_set[idx][1] for idx in range(len(self.training_set))]
