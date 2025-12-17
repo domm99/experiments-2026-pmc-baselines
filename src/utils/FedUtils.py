@@ -33,6 +33,7 @@ def initialize_control_state(experiment, device):
 
 def test_model(model, dataset, batch_size, device):
     criterion = nn.CrossEntropyLoss()
+    model.to(device)
     model.eval()
     loss, total, correct = 0.0, 0.0, 0.0
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
@@ -61,7 +62,7 @@ def plot_heatmap(data, labels, areas, name, floating = True):
     plt.savefig(f'{name}.pdf')
     plt.close()
 
-def prune_model(model_params, dataset_name, amount):
+def prune_model(model_params, dataset_name, amount, reparametrization=False):
     model = initialize_model(dataset_name)
     model.load_state_dict(model_params)
     # Pruning
@@ -70,10 +71,11 @@ def prune_model(model_params, dataset_name, amount):
             tprune.l1_unstructured(module, name='weight', amount=amount)
 
     #Remove the pruning reparametrizations to make the model explicitly sparse
-    for _, module in model.named_modules():
-        if isinstance(module, nn.Linear):
-            tprune.remove(module, 'weight')
-    return model.state_dict()
+    if reparametrization:
+        for _, module in model.named_modules():
+            if isinstance(module, nn.Linear):
+                tprune.remove(module, 'weight')
+    return model
 
 
 def check_sparsity(state_dict, verbose=False):
