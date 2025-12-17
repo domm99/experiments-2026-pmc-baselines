@@ -1,13 +1,11 @@
-import math
-import random
 import torch
-import numpy as np
 import torch.nn as nn
 import seaborn as sns
 from models.MNIST import NNMnist
 import matplotlib.pyplot as plt
+import torch.nn.utils.prune as tprune
+from torch.utils.data import DataLoader
 from torchvision.models import mobilenet_v2
-from torch.utils.data import Dataset, Subset, DataLoader
 
 def initialize_model(name):
     if name == 'MNIST' or name == 'FashionMNIST':
@@ -61,3 +59,40 @@ def plot_heatmap(data, labels, areas, name, floating = True):
     plt.tight_layout()
     plt.savefig(f'{name}.pdf')
     plt.close()
+
+def prune_model(model_params, dataset_name, amount):
+    model = initialize_model(dataset_name)
+    model.load_state_dict(model_params)
+    # Pruning
+    for _, module in model.named_modules():
+        if isinstance(module, nn.Linear):
+            tprune.l1_unstructured(module, name='weight', amount=amount)
+
+    #Remove the pruning reparametrizations to make the model explicitly sparse
+    for _, module in model.named_modules():
+        if isinstance(module, nn.Linear):
+            tprune.remove(module, 'weight')
+    return model.state_dict()
+
+
+def check_sparsity(state_dict, verbose=False):
+    total_zeros = 0
+    total_params = 0
+
+    for name, tensor in state_dict.items():
+
+        num_params = tensor.numel()
+        num_zeros = torch.sum(tensor == 0).item()
+
+        total_params += num_params
+        total_zeros += num_zeros
+
+        if verbose:
+            layer_sparsity = (num_zeros / num_params) * 100
+            print(f"Layer: {name} | Sparsity: {layer_sparsity:.2f}%")
+
+    if total_params == 0:
+        return 0.0
+
+    global_sparsity = (total_zeros / total_params) * 100
+    return global_sparsity
