@@ -26,7 +26,7 @@ class Simulator:
         self.areas = areas
         self.sparsification_level = sparsification
         self.n_clients = n_clients
-        self.export_path = f'{data_folder}/seed-{seed}_algorithm-{self.algorithm}_dataset-{dataset_name}_partitioning-{self.partitioning}_areas-{self.areas}_clients-{self.n_clients}'
+        self.export_path = f'{data_folder}/seed-{seed}_algorithm-{self.algorithm}_dataset-{dataset_name}_partitioning-{self.partitioning}_areas-{self.areas}_clients-{self.n_clients}_sparsity-{self.sparsification_level}'
         self.simulation_data = pd.DataFrame(columns=['Round','TrainingLoss', 'ValidationLoss', 'ValidationAccuracy'])
         self.clients = self.initialize_clients()
         self.server = self.initialize_server()
