@@ -18,7 +18,7 @@ class FedProxClient:
         self.sparsification_level = sparsification_level
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._model = initialize_model(dataset_name).to(self.device)
-        self._model = prune_model(self._model.state_dict(), self.dataset_name, self.sparsification_level)
+        self._model = prune_model(self._model.state_dict(), self.dataset_name, self.sparsification_level).to(self.device)
 
     def train(self):
         # labels = [self.training_set[idx][1] for idx in range(len(self.training_set))]
@@ -26,6 +26,7 @@ class FedProxClient:
 
         global_weights = copy.deepcopy(self._model.state_dict()) # w^t
         global_model = initialize_model(self.dataset_name)
+        global_model = prune_model(global_model.state_dict(), self.dataset_name, self.sparsification_level).to(self.device)
         global_model.load_state_dict(global_weights)
         global_model.to(self.device)
         global_weights = list(global_model.parameters())
