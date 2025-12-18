@@ -9,8 +9,10 @@ class ScaffoldServer:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # self.device = torch.device("cpu")
         self.sparsification_level = sparsification_level
-        self._model = initialize_model(dataset).to(self.device)
+        self._model = initialize_model(dataset)
+        self._model = prune_model(self._model.state_dict(), dataset, self.sparsification_level).to(self.device)
         self._control_state = initialize_control_state(dataset, self.device)
+        self._control_state = prune_model(self._control_state, dataset, self.sparsification_level).to(self.device).state_dict()
 
     def aggregate(self):
         n = len(self.clients_data.keys())
@@ -32,7 +34,7 @@ class ScaffoldServer:
         self.clients_data = client_data
         if not self.old_client_control_state:
             self.old_client_control_state = { k: initialize_control_state(self.dataset, self.device) for k, v in client_data.items() }
-
+            self.old_client_control_state = {k: prune_model(v, self.dataset, self.sparsification_level).to(self.device).state_dict() for k, v in self.old_client_control_state.items() }
     @property
     def model(self):
         return self._model
@@ -55,6 +57,7 @@ class ScaffoldServer:
         acc = None
         global_model_dict = self._model.state_dict()
         for client in self.clients_data.keys():
+            #client_model_dict = {k: v.to('cpu') for k, v in self.clients_data[client]['model'].state_dict().items()}
             client_model_dict = self.clients_data[client]['model'].state_dict()
             delta = client_model_dict[key] - global_model_dict[key]
             if acc is None:
