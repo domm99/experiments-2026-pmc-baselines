@@ -21,8 +21,8 @@ class IFCAClient:
         self.dataset_name = dataset_name
         self.sparsification_level = sparsification_level
         self._model = initialize_model(dataset_name)
-        self._model = prune_model(self._model.state_dict(), self.dataset_name, self.sparsification_level)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self._model = prune_model(self._model.state_dict(), self.dataset_name, self.sparsification_level).to(self.device)
 
     def train(self):
         self.current_cluster_id = self.__find_cluster()
@@ -51,8 +51,7 @@ class IFCAClient:
     def notify_updates(self, global_models):
         self._global_models = []
         for global_model in global_models:
-            fresh_model = copy.deepcopy(global_model)
-            self._global_models.append(fresh_model)
+            self._global_models.append(global_model)
 
     def __find_cluster(self):
         losses = []
