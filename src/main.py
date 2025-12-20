@@ -29,16 +29,16 @@ if __name__ == '__main__':
     except FileNotFoundError:
         pass
 
-    for algorithm in algorithms:
-        for seed in range(max_seed):
-            for dataset in datasets:
-                for partitioning in partitionings:
+    for seed in range(max_seed):
+        for partitioning in partitionings:
+            for algorithm in algorithms:
+                for dataset in datasets:
                     for area in areas:
                         for sparsification in sparsifications:
                             simulator = Simulator(algorithm, partitioning, area, dataset, clients, batch_size, local_epochs, data_dir, seed, sparsification)
                             simulator.seed_everything(seed)
                             simulator.start(global_rounds)
-                            experiment_name = f'seed-{seed}_regions-{area}_algorithm-{algorithm}_sparsity-{sparsification}'
+                            experiment_name = f'seed-{seed}_regions-{area}_algorithm-{algorithm}_sparsity-{sparsification}_partitioning-{partitioning}'
                             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             new_line = {'timestamp': timestamp, 'experiment': experiment_name}
                             df = pd.concat([df, pd.DataFrame([new_line])], ignore_index=True)
