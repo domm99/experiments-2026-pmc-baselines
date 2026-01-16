@@ -124,16 +124,11 @@ class Simulator:
 
         if self.algorithm == 'ifca':
             environment_test = partition_to_subregions(self.test_data, self.test_data, self.dataset_name, self.partitioning, self.areas, self.seed)
-            region_to_val_data = {}
             region_to_test_data = {}
             for region_id in range(self.areas):
-                mapping_devices_data_val = environment.from_subregion_to_devices(region_id, 1)
                 mapping_devices_data_test = environment_test.from_subregion_to_devices(region_id, 1)
-                d_val = mapping_devices_data_val[0][0]
                 d_test = mapping_devices_data_test[0][0]
-                region_to_val_data[region_id] = Subset(d_val.dataset, d_val.indices)
                 region_to_test_data[region_id] = Subset(d_test.dataset, d_test.indices)
-            self.ifca_val_mapping = region_to_val_data
             self.ifca_test_mapping = region_to_test_data
 
         return mapping
@@ -158,22 +153,24 @@ class Simulator:
         return loss, accuracy
 
     def __validate_clustered(self, validation):
-        # models = self.server.model
         if validation:
-            mapping = self.ifca_val_mapping
+            losses = []
+            accuracies = []
+            for client in self.clients:
+                loss, accuracy = client.validate()
+                losses.append(loss)
+                accuracies.append(accuracy)
+            loss, accuracy = sum(losses) / len(losses), sum(accuracies) / len(accuracies)
         else:
             mapping = self.ifca_test_mapping
-
-        losses = []
-        accuracies = []
-        for client in self.clients:
-            cluster_id, model = client.model
-            loss, accuracy = utils.test_model(model, mapping[cluster_id], self.batch_size, self.device)
-            losses.append(loss)
-            accuracies.append(accuracy)
-        loss, accuracy = sum(losses)/len(losses), sum(accuracies)/len(accuracies)
-
-        if not validation:
+            losses = []
+            accuracies = []
+            for client in self.clients:
+                cluster_id, model = client.model
+                loss, accuracy = utils.test_model(model, mapping[cluster_id], self.batch_size, self.device)
+                losses.append(loss)
+                accuracies.append(accuracy)
+            loss, accuracy = sum(losses)/len(losses), sum(accuracies)/len(accuracies)
             data = pd.DataFrame({'Loss': [loss], 'Accuracy': [accuracy]})
             data.to_csv(f'{self.export_path}-test.csv', index=False)
 
