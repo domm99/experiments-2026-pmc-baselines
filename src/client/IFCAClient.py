@@ -12,6 +12,7 @@ class IFCAClient:
         self.lr = 0.001
         self.epochs = epochs
         self.dataset = dataset[0]
+        self.validation_dataset = dataset[1]
         # labels = [self.dataset[idx][1] for idx in range(len(self.dataset))]
         # print(f'Client {self.mid} --> training set size {len(self.dataset)} classes {set(labels)}')
         self._global_models = []
@@ -64,3 +65,6 @@ class IFCAClient:
     @property
     def model(self):
         return self.current_cluster_id, self._model
+
+    def validate(self):
+        return test_model(self._model, self.validation_dataset, self.batch_size, self.device)
