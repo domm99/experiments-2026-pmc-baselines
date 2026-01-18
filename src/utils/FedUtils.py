@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 import seaborn as sns
-from models.MNIST import NNMnist
+from models.CIFAR import CNN
 import matplotlib.pyplot as plt
+from models.MNIST import NNMnist
 import torch.nn.utils.prune as tprune
 from torch.utils.data import DataLoader
 from torchvision.models import mobilenet_v2
@@ -15,13 +16,7 @@ def initialize_model(name):
     elif name == 'UTKFace':
         return NNMnist(output_size=1) # TODO - fix
     elif name == 'CIFAR100':
-        model = mobilenet_v2(pretrained=True)
-        in_features = model.classifier[1].in_features
-        model.classifier = nn.Sequential(
-            nn.Dropout(p=0.2),
-            nn.Linear(in_features, 100)
-        )
-        return model
+        return CNN(num_classes=100)
     else:
         raise Exception(f'Model {name} not implemented! Please check :)')
 
@@ -66,11 +61,22 @@ def prune_model(model_params, dataset_name, amount, reparametrization=False):
     model = initialize_model(dataset_name)
     model.load_state_dict(model_params)
     # Pruning
-    for _, module in model.named_modules():
-        if isinstance(module, nn.Linear):
-            tprune.l1_unstructured(module, name='weight', amount=amount)
+    if 'CIFAR100' in dataset_name:
+        for module in model.modules():
+            if isinstance(module, nn.Conv2d):
+                tprune.ln_structured(
+                    module,
+                    name="weight",
+                    amount=amount,
+                    n=2,
+                    dim=0
+                )
+    else:
+        for _, module in model.named_modules():
+            if isinstance(module, nn.Linear):
+                tprune.l1_unstructured(module, name='weight', amount=amount)
 
-    #Remove the pruning reparametrizations to make the model explicitly sparse
+    # Remove the pruning reparametrizations to make the model explicitly sparse
     if reparametrization:
         for _, module in model.named_modules():
             if isinstance(module, nn.Linear):
