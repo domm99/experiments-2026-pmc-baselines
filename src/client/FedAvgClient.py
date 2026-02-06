@@ -42,7 +42,6 @@ class FedAvgClient:
 
     def notify_updates(self, global_model):
         self._model.load_state_dict(copy.deepcopy(global_model.state_dict()))
-        print(f'FedAvgClient {self.mid} Initialization, sparsity --> {check_sparsity(self._model.state_dict())}')
 
     @property
     def model(self):
