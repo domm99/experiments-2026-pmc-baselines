@@ -5,4 +5,4 @@ pandas == 2.2.3
 pyyaml == 6.0.2
 seaborn == 0.13.2
 matplotlib == 3.10.0
-profed == 0.7.3
+profed == 0.7.4
