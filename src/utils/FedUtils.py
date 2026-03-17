@@ -10,11 +10,11 @@ from torchvision.models import mobilenet_v2
 
 def initialize_model(name):
     if name == 'MNIST' or name == 'FashionMNIST':
-        return NNMnist()
+        return NNMnist(num_classes=10)
     elif name == 'EMNIST':
-        return NNMnist(output_size=27)
+        return NNMnist(num_classes=27)
     elif name == 'UTKFace':
-        return NNMnist(output_size=1) # TODO - fix
+        return NNMnist(num_classes=1) # TODO - fix
     elif name == 'CIFAR100':
         return CNN(num_classes=100)
     else:
