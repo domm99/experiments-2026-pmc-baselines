@@ -13,7 +13,6 @@ class CNN(nn.Module):
         self.conv3 = nn.Conv2d(64, 128, 3, padding=1)
         self.bn3   = nn.BatchNorm2d(128)
 
-        # 32 -> 16 -> 8 -> 4
         self.fc = nn.Linear(128 * 4 * 4, num_classes)
 
     def forward(self, x):
