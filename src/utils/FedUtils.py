@@ -57,32 +57,24 @@ def plot_heatmap(data, labels, areas, name, floating = True):
     plt.savefig(f'{name}.pdf')
     plt.close()
 
-def prune_model(model_params, dataset_name, amount, reparametrization=False):
+def prune_model(model_params, amount, dataset_name, reparametrization=False):
     model = initialize_model(dataset_name)
     model.load_state_dict(model_params)
-    # Pruning
-    if 'CIFAR100' in dataset_name:
-        for module in model.modules():
-            if isinstance(module, nn.Conv2d):
-                tprune.ln_structured(
-                    module,
-                    name="weight",
-                    amount=amount,
-                    n=2,
-                    dim=0
-                )
-    else:
-        for _, module in model.named_modules():
-            if isinstance(module, nn.Linear):
-                tprune.l1_unstructured(module, name='weight', amount=amount)
 
-    # Remove the pruning reparametrizations to make the model explicitly sparse
+    for name, module in model.named_modules():
+
+        if isinstance(module, nn.Conv2d):
+            tprune.ln_structured(module, name="weight", amount=amount, n=2, dim=0)
+        elif isinstance(module, nn.Linear):
+            tprune.l1_unstructured(module, name='weight', amount=amount)
+
     if reparametrization:
-        for _, module in model.named_modules():
-            if isinstance(module, nn.Linear):
-                tprune.remove(module, 'weight')
-    return model
+        for module in model.modules():
+            if isinstance(module, (nn.Linear, nn.Conv2d)):
+                if hasattr(module, 'weight_mask'):
+                    tprune.remove(module, 'weight')
 
+    return model
 
 def check_sparsity(state_dict, verbose=False):
     total_zeros = 0
