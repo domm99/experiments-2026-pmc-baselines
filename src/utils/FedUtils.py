@@ -57,7 +57,7 @@ def plot_heatmap(data, labels, areas, name, floating = True):
     plt.savefig(f'{name}.pdf')
     plt.close()
 
-def prune_model(model_params, amount, dataset_name, reparametrization=False):
+def prune_model(model_params, dataset_name, amount, reparametrization=False):
     model = initialize_model(dataset_name)
     model.load_state_dict(model_params)
 
