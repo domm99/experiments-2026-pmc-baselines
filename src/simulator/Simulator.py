@@ -17,6 +17,7 @@ class Simulator:
 
     def __init__(self, algorithm, partitioning, areas, dataset_name, n_clients, batch_size, local_epochs, data_folder, seed, sparsification):
         self.seed = seed
+        self.seed_everything(seed)
         self.batch_size = batch_size
         self.local_epochs = local_epochs
         self.dataset_name = dataset_name
@@ -28,6 +29,8 @@ class Simulator:
         self.n_clients = n_clients
         self.export_path = f'{data_folder}/seed-{seed}_algorithm-{self.algorithm}_dataset-{dataset_name}_partitioning-{self.partitioning}_areas-{self.areas}_clients-{self.n_clients}_sparsity-{self.sparsification_level}'
         self.simulation_data = pd.DataFrame(columns=['Round','TrainingLoss', 'ValidationLoss', 'ValidationAccuracy'])
+        self.client_to_area = {}
+        self.area_to_clients = {}
         self.clients = self.initialize_clients()
         self.server = self.initialize_server()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -106,12 +109,18 @@ class Simulator:
         train, test_data = download_dataset(self.dataset_name)
         training_data, validation_data = split_train_validation(train, 0.8)
         if self.algorithm == 'ifca':
-            test_data, _ = split_train_validation(test_data, 1.0)
+            test_data = Subset(test_data, list(range(len(test_data))))
         return training_data, validation_data, test_data
 
     def map_client_to_data(self) -> dict[int, Subset]:
         clients_split = np.array_split(list(range(self.n_clients)), self.areas)
         mapping_devices_area = { areaId: list(clients_split[areaId]) for areaId in range(self.areas) }
+        self.area_to_clients = mapping_devices_area
+        self.client_to_area = {
+            device_id: area_id
+            for area_id, devices in mapping_devices_area.items()
+            for device_id in devices
+        }
 
         environment = partition_to_subregions(self.training_data, self.validation_data, self.dataset_name, self.partitioning, self.areas, self.seed)
 
@@ -157,7 +166,9 @@ class Simulator:
             losses = []
             accuracies = []
             for client in self.clients:
-                loss, accuracy = client.validate()
+                cluster_id, _ = client.model
+                model = self.server.model[cluster_id]
+                loss, accuracy = utils.test_model(model, client.validation_dataset, self.batch_size, self.device)
                 losses.append(loss)
                 accuracies.append(accuracy)
             loss, accuracy = sum(losses) / len(losses), sum(accuracies) / len(accuracies)
@@ -165,9 +176,11 @@ class Simulator:
             mapping = self.ifca_test_mapping
             losses = []
             accuracies = []
-            for client in self.clients:
-                cluster_id, model = client.model
-                loss, accuracy = utils.test_model(model, mapping[cluster_id], self.batch_size, self.device)
+            for area_id, clients in self.area_to_clients.items():
+                cluster_votes = [self.clients[client_id].model[0] for client_id in clients]
+                cluster_id = max(sorted(set(cluster_votes)), key=cluster_votes.count)
+                model = self.server.model[cluster_id]
+                loss, accuracy = utils.test_model(model, mapping[area_id], self.batch_size, self.device)
                 losses.append(loss)
                 accuracies.append(accuracy)
             loss, accuracy = sum(losses)/len(losses), sum(accuracies)/len(accuracies)

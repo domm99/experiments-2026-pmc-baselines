@@ -8,7 +8,7 @@ if __name__ == '__main__':
     total_experiments = 0
 
     datasets        = ['EMNIST', 'CIFAR100']
-    algorithms      = ['fedavg','fedprox', 'scaffold'] #, 'ifca']
+    algorithms      = ['ifca'] #'fedavg','fedprox', 'scaffold'] #, 'ifca']
     areas           = [3, 5, 9]
     partitionings   = ['Hard',] #'Dirichlet']
     sparsifications = [0.0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99]
