@@ -9,7 +9,7 @@
 #SBATCH --mem=31G
 #SBATCH --partition=rtx2080
 #SBATCH --output=output_exp_%A_%a.txt
-#SBATCH --chdir=/scratch.hpc/davide.domini/experiments-2026-PMC-sparseful
+#SBATCH --chdir=/scratch.hpc/davide.domini/experiments-2026-pmc-baselines
 #SBATCH --gres=gpu:1
 
 source ../env/bin/activate
