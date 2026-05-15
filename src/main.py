@@ -7,17 +7,17 @@ if __name__ == '__main__':
 
     total_experiments = 0
 
-    datasets        = ['EMNIST', 'CIFAR100']
+    datasets        = ['CIFAR100'] # 'EMNIST', 
     algorithms      = ['ifca'] #'fedavg','fedprox', 'scaffold'] #, 'ifca']
     areas           = [3, 5, 9]
     partitionings   = ['Hard',] #'Dirichlet']
-    sparsifications = [0.0, 0.2, 0.4, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99]
+    sparsifications = [0.0, 0.4, 0.6, 0.8, 0.85, 0.9]
     clients         = 50
     batch_size      = 32
     local_epochs    = 2
     global_rounds   = 60
     data_dir        = 'data'
-    max_seed        = 5
+    max_seed        = 1
 
     data_output_directory = Path(data_dir)
     data_output_directory.mkdir(parents=True, exist_ok=True)
