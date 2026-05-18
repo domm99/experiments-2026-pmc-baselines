@@ -9,13 +9,13 @@ if __name__ == '__main__':
 
     datasets        = ['CIFAR100'] # 'EMNIST', 
     algorithms      = ['ifca'] #'fedavg','fedprox', 'scaffold'] #, 'ifca']
-    areas           = [3, 5, 9]
+    areas           = [3, 5, 9]#[3, 5, 9]
     partitionings   = ['Hard',] #'Dirichlet']
     sparsifications = [0.0, 0.4, 0.6, 0.8, 0.85, 0.9]
     clients         = 50
     batch_size      = 32
     local_epochs    = 2
-    global_rounds   = 60
+    global_rounds   = 15
     data_dir        = 'data'
     max_seed        = 1
 
